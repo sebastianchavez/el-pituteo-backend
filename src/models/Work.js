@@ -12,7 +12,11 @@ const workSchema = new Schema({
     state: String,
     title: String,
     description: String,
-    payState: String,
+    payTransfer: {
+        payState: String,
+        payTransferImage: String,
+        namePayTransferImage: String,
+    },
     ratingEmployee: {
         rating: Number,
         comentary: String,

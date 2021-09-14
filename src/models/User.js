@@ -10,32 +10,41 @@ const userSchema = new Schema({
     communeId: { type: Schema.Types.ObjectId, ref: 'Commune' },
     phone: Number,
     email: String,
-    imageCI: String,
-    nameImageCI: String,
-    imageUser: String,
-    nameImageUser: String,
-    expiredDate: Date,
+    expiredDateCI: Date,
     nacionality: String,
-    certificateOfPermanence: String,
-    nameCertificateOfPermanence: String,
-    profession: String,
-    certificateOfStudies: String,
-    nameCertificateOfStudies: String,
-    criminalRecord: String,
-    nameCriminalRecord: String,
-    otherFile: String,
-    nameOtherFile: String,
-    imageProfile: String,
-    nameImageProfile: String,
+    professionId: { type: Schema.Types.ObjectId, ref: 'Profession' },
     isAvailable: Boolean,
-    profiles: [
+    files: {
+        imageCI: String,
+        nameImageCI: String,
+        imageUser: String,
+        nameImageUser: String,
+        certificateOfPermanence: String,
+        nameCertificateOfPermanence: String,
+        certificateOfStudies: String,
+        nameCertificateOfStudies: String,
+        criminalRecord: String,
+        nameCriminalRecord: String,
+        otherFile: String,
+        nameOtherFile: String,
+        imageProfile: String,
+        nameImageProfile: String,
+    },
+    roles: [
         {
-            profile: String
+            role: String
         }
     ],
-    rating: { type: Number, index: true, default: 0 },
-    numberOfPeopleRated: { type: Number, default: 0 },
-    totalRating: { type: Number, default: 0 },
+    rating: {
+        rating: { type: Number, index: true, default: 0 },
+        numberOfPeopleRated: { type: Number, default: 0 },
+        totalRating: { type: Number, default: 0 },
+    },
+    accountBank: {
+        bank: String,
+        typeAccount: String,
+        numberAccount: Number
+    }
 },{
     timestamps: true
 })
