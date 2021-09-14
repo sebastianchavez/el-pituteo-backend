@@ -3,6 +3,8 @@ const Schema = mongoose.Schema
 
 const categorySchema = new Schema({
     category: String,
+    image: String,
+    nameImage: String,
     icon: String,
     nameIcon: String,
     professions: [
