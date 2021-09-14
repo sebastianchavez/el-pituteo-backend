@@ -18,6 +18,7 @@ const workSchema = new Schema({
         payState: String,
         payTransferImage: String,
         namePayTransferImage: String,
+        payDate: Date,
     },
     ratingEmployee: {
         rating: Number,
@@ -30,9 +31,14 @@ const workSchema = new Schema({
     applicants: [
         { 
             userId: { type: Schema.Types.ObjectId, ref: 'User' },
-            accepted: Boolean 
+            accepted: Boolean,
+            applicantedDate: Date,
+            acceptedDate: Date,
         }
-    ]
+    ],
+    reasonReject: String,
+    comentaryReject: String,
+    finish: Date
 },{
     timestamps: true
 })
