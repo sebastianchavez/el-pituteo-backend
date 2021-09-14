@@ -14,6 +14,7 @@ const userSchema = new Schema({
     nacionality: String,
     professionId: { type: Schema.Types.ObjectId, ref: 'Profession' },
     state: String,
+    pushId: String,
     files: {
         imageCI: String,
         nameImageCI: String,
