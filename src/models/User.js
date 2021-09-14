@@ -13,7 +13,7 @@ const userSchema = new Schema({
     expiredDateCI: Date,
     nacionality: String,
     professionId: { type: Schema.Types.ObjectId, ref: 'Profession' },
-    isAvailable: Boolean,
+    state: String,
     files: {
         imageCI: String,
         nameImageCI: String,
