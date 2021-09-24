@@ -4,9 +4,10 @@ const Schema = mongoose.Schema
 const userSchema = new Schema({
     rut: { type: String, unique: true },
     password: String,
+    idS3: { type: String, unique: true },
     names: String,
     lastnames: String,
-    direction: String,
+    address: String,
     communeId: { type: Schema.Types.ObjectId, ref: 'Commune' },
     phone: Number,
     email: String,

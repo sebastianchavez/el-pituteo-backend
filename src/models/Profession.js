@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const professionSchema = new Schema({
-    profession: String,
+    name: String,
     isAvailable: Boolean
 })
 

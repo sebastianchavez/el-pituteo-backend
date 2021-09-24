@@ -5,7 +5,8 @@ const { MONGODB_URI } = require('./server')
 
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useCreateIndex: true
 })
 
 const connection = mongoose.connection
