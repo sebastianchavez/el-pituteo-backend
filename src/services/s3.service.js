@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk')
-const s3Sertive = {}
+const s3Service = {}
 const { S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_ACL, S3_BUCKET } = process.env
 
 AWS.config.update({
@@ -8,7 +8,7 @@ AWS.config.update({
 })
 
 // TODO: llevar a promesa
-s3Sertive.getObject = async obj => {
+s3Service.getObject = async obj => {
   try {
     let params = {}
     const s3 = new AWS.S3()
@@ -20,7 +20,7 @@ s3Sertive.getObject = async obj => {
   }
 }
 
-s3Sertive.saveImage = (obj) => {
+s3Service.saveImage = (obj) => {
   return new Promise(async (resolve, reject) => {
         try {
             const s3 = new AWS.S3()
@@ -41,7 +41,7 @@ s3Sertive.saveImage = (obj) => {
 }
 
 // TODO: llevar a promesa
-s3Sertive.deleteImage = (obj, callback) => {
+s3Service.deleteImage = (obj, callback) => {
   try {
     const s3 = new AWS.S3()
     let params = {
@@ -58,4 +58,4 @@ s3Sertive.deleteImage = (obj, callback) => {
   }
 }
 
-module.exports = s3Sertive
+module.exports = s3Service

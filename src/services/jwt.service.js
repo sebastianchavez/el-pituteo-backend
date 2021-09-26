@@ -1,8 +1,9 @@
 const jwt = require('jwt-simple')
 const moment = require('moment')
 const { SECRET_TOKEN } = process.env
+const jwtService = {}
 
-const createToken = (user) => {
+jwtService.createToken = (user) => {
   const payload = {
     sub: {
       userId: user._id,
@@ -15,7 +16,7 @@ const createToken = (user) => {
   return jwt.encode(payload, SECRET_TOKEN)
 }
 
-const decodeToken = (token) => {
+jwtService.decodeToken = (token) => {
   const decode = new Promise((resolve, reject) => {
     try {
       const payload = jwt.decode(token, SECRET_TOKEN)
@@ -36,7 +37,4 @@ const decodeToken = (token) => {
   return decode
 }
 
-module.exports = {
-  createToken,
-  decodeToken
-}
+module.exports = jwtService

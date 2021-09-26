@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt-nodejs')
 const mongoose = require('mongoose')
 const { User } = require('../models')
-const { s3Service } = require('../services')
+const { s3Service, emailService, oneSignalService } = require('../services')
 const { STATES } = require('../config/constants')
 const userCtrl = {}
 
@@ -60,7 +60,7 @@ userCtrl.updateImage = async (req, res) => {
 
 userCtrl.filterUser = async (req, res) => {
     try {
-        const { rut, email, isAvailable } = req.body
+        const { rut, email, states } = req.query
         const criteria = {}
         criteria.$and = []
         if(rut && rut != ''){
@@ -73,13 +73,12 @@ userCtrl.filterUser = async (req, res) => {
             let option = { $regex: regex }
             criteria.$and.push({ email: option })
         }
-        if(isAvailable && isAvailable != 'null'){
-            criteria.isAvailable = isAvailable
-        }
         if(criteria.$and.length == 0) {
             delete criteria.$and
         }
-        console.log(criteria)
+        if(states && states != ''){
+            criteria.state = { $in: states.split(',') }
+        }
         const users = await User.find(criteria)
         res.status(200).send({message: 'Success', users})
     } catch (e) {
@@ -90,14 +89,16 @@ userCtrl.filterUser = async (req, res) => {
 
 userCtrl.updateState = async (req, res) => {
     try {
-        const { _id, accepted } = req.body
+        const { _id, accepted, pushId } = req.body
         const dataToUpdate = {}
         if(accepted && accepted != 'null'){
             dataToUpdate.state = STATES.USER.AVAILABLE
         } else {
             dataToUpdate.state = STATES.USER.REJECTED
         }
-        await User.findByIdAndUpdate(_id, dataToUpdate)
+        const response = await User.findByIdAndUpdate(_id, dataToUpdate)
+        await emailService.changeStateUser({state: dataToUpdate.state, email: response.email})
+        await oneSignalService.sendPushResolutionRegister(pushId, dataToUpdate.state)
         res.status(200).send({message: 'Success'})
     } catch (e) {
         console.log('updateState - Error:', e)
