@@ -14,11 +14,11 @@ const transporter = nodemailer.createTransport({
 
 emailService.changeStateUser = (body) => {
   return transporter.sendMail({
-      from: 'contacto@elpituteo.cl',
-      to: body.email,
-      subject: 'Resolución de registro de usuario',
-      html: userTemplate.changeState(body)
-    })
+    from: 'contacto@elpituteo.cl',
+    to: body.email,
+    subject: 'Resolución de registro de usuario',
+    html: userTemplate.changeState(body)
+  })
 }
 
 module.exports = emailService

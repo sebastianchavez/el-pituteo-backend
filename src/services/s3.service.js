@@ -22,22 +22,22 @@ s3Service.getObject = async obj => {
 
 s3Service.saveImage = (obj) => {
   return new Promise(async (resolve, reject) => {
-        try {
-            const s3 = new AWS.S3()
-            let encodedImage = obj.image
-            let decodedImage = Buffer.from(encodedImage, 'base64')
-            let params = {
-                Bucket: S3_BUCKET,
-                Key: `${obj.path}${obj.name}`,
-                ACL: S3_ACL,
-                Body: decodedImage
-            }
-            const response = await s3.upload(params).promise()
-            resolve(response)
-        } catch (e) {
-            reject(e)
-        }
-    })
+    try {
+      const s3 = new AWS.S3()
+      let encodedImage = obj.image
+      let decodedImage = Buffer.from(encodedImage, 'base64')
+      let params = {
+        Bucket: S3_BUCKET,
+        Key: `${obj.path}${obj.name}`,
+        ACL: S3_ACL,
+        Body: decodedImage
+      }
+      const response = await s3.upload(params).promise()
+      resolve(response)
+    } catch (e) {
+      reject(e)
+    }
+  })
 }
 
 // TODO: llevar a promesa

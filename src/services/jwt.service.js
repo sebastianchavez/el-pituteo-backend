@@ -16,6 +16,23 @@ jwtService.createToken = (user) => {
   return jwt.encode(payload, SECRET_TOKEN)
 }
 
+jwtService.createTokenUser = (user) => {
+  const payload = {
+    sub: {
+      userId: user._id,
+      email: user.email,
+      roles: user.roles,
+      phone: user.phone,
+      state: user.state,
+      idS3: user.idS3
+    },
+    iat: moment().unix(),
+    exp: moment().add(30, 'days').unix()
+  }
+
+  return jwt.encode(payload, SECRET_TOKEN)
+}
+
 jwtService.decodeToken = (token) => {
   const decode = new Promise((resolve, reject) => {
     try {

@@ -5,7 +5,7 @@ const { ONESIGNAL_URL, ONESIGNAL_APP_ID, ONESIGNAL_APIRESP } = process.env
 
 oneSignalService.sendPushResolutionRegister = (toId, state) => {
     return new Promise(async (resolve, reject) => {
-        const { title, message } = userTemplate.changeState({state})
+        const { title, message } = userTemplate.changeState({ state })
         const key = `Basic ${ONESIGNAL_APIRESP}`
         const body = {
             "app_id": ONESIGNAL_APP_ID,
