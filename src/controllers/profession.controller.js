@@ -50,4 +50,18 @@ professionCtrl.filterProfessions = async (req, res) => {
     }
 }
 
+professionCtrl.updateState = async (req, res) => {
+    try {
+        const { _id, isAvailable } = req.body
+        const dataToUpdate = {
+            isAvailable
+        }
+        await Profession.findByIdAndUpdate(_id, { $set: dataToUpdate })
+        res.status(200).send({ message: 'Profesión actualizada' })
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
 module.exports = professionCtrl

@@ -6,5 +6,6 @@ const { professionCtrl } = require('../controllers')
 router.post('/save', adminAuth, professionCtrl.save)
 router.get('/get-professions', professionCtrl.getProfessions)
 router.get('/filter-professions', adminAuth, professionCtrl.filterProfessions)
+router.put('/update-state', adminAuth, professionCtrl.updateState)
 
 module.exports = router
