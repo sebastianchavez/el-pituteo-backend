@@ -87,15 +87,11 @@ userCtrl.login = async (req, res) => {
 
 userCtrl.updateImage = async (req, res) => {
     try {
-        const { image, nameImage, type, idS3 } = req.body
-        // type = 'ci', 'user', 'permanence', 'studies', 'criminal', 'other', 'profile'
-        let obj
-        if (type == 'ci' || type == 'user' || type == 'permanence' || type == 'studies' || type == 'criminal' || type == 'other') {
-            obj = {
-                path: `${idS3}/images/`,
-                name: nameImage,
-                image: image
-            }
+        const { image, nameImage, idS3 } = req.body
+        let obj = {
+            path: `${idS3}/images/`,
+            name: nameImage,
+            image: image
         }
         const response = await s3Service.saveImage(obj)
         res.status(200).send({ message: 'Success', url: response.Location })
