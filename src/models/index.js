@@ -5,4 +5,5 @@ module.exports = {
     PaymentMethod: require('./Paymentmethod'),
     Profession: require('./Profession'),
     User: require('./User'),
+    Work: require('./Work')
 }

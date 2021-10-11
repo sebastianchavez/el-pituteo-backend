@@ -56,4 +56,14 @@ paymentMethodCtrl.updateState = async (req, res) => {
     }
 }
 
+paymentMethodCtrl.getPaymentMethods = async (req, res) => {
+    try {
+        const paymentMethods = await Paymentmethod.find({ isAvailable: true })
+        res.status(200).send({ message: 'Success', paymentMethods })
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
 module.exports = paymentMethodCtrl

@@ -2,15 +2,15 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const workSchema = new Schema({
-    userIdEmployee: { type: Schema.Types.ObjectId, ref: 'User' },
-    userIdEmployer: { type: Schema.Types.ObjectId, ref: 'User' },
+    userIdEmployee: { type: Schema.Types.ObjectId, ref: 'User' }, // apitutado
+    userIdEmployer: { type: Schema.Types.ObjectId, ref: 'User' }, // apitutador
     amount: Number,
     paymentMethodId: { type: Schema.Types.ObjectId, ref: 'Paymentmethod' },
     profession: { type: Schema.Types.ObjectId, ref: 'Profession' },
     state: String,
     title: String,
     description: String,
-    address : {
+    address: {
         address: String,
         communeId: { type: Schema.Types.ObjectId, ref: 'Commune' },
     },
@@ -29,8 +29,8 @@ const workSchema = new Schema({
         comentary: String,
     },
     applicants: [
-        { 
-            userId: { type: Schema.Types.ObjectId, ref: 'User' },
+        {
+            userId: { type: Schema.Types.ObjectId, ref: 'User' }, // apitutado
             accepted: Boolean,
             applicantedDate: Date,
             acceptedDate: Date,
@@ -39,7 +39,7 @@ const workSchema = new Schema({
     reasonReject: String,
     comentaryReject: String,
     finish: Date
-},{
+}, {
     timestamps: true
 })
 

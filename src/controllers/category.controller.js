@@ -99,4 +99,14 @@ categoryCtrl.updateProfessions = async (req, res) => {
     }
 }
 
+categoryCtrl.getCategories = async (req, res) => {
+    try {
+        const categories = await Category.find({ isAvailable: true })
+        res.status(200).send({ message: 'Success', categories })
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
 module.exports = categoryCtrl

@@ -5,4 +5,5 @@ module.exports = {
     paymentMethodRouter: require('./paymentmethod'),
     professionRouter: require('./profession'),
     userRouter: require('./user'),
+    workRouter: require('./work')
 }
