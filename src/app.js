@@ -19,5 +19,6 @@ app.use('/api/communes', routers.communeRouter)
 app.use('/api/users', routers.userRouter)
 app.use('/api/payment-methods', routers.paymentMethodRouter)
 app.use('/api/professions', routers.professionRouter)
+app.use('/api/works', routers.workRouter)
 
 module.exports = app
