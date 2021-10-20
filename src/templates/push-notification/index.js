@@ -1,3 +1,4 @@
 module.exports = {
-    userTemplate: require('./user')
+    userTemplate: require('./user'),
+    workTemplate: require('./work')
 }
