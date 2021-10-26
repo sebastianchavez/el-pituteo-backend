@@ -10,11 +10,16 @@ module.exports = {
         USER: {
             PENDING: 'PENDING',
             REJECTED: 'REJECTED',
-            AVAILABLE: 'AVAILABLE'
+            AVAILABLE: 'AVAILABLE',
+            APPLY_EMPLOYEE: 'APPLY_EMPLOYEE'
         }
     },
     ROLES: {
         EMPLOYEE: 'EMPLOYEE',
         EMPLOYER: 'EMPLOYER'
+    },
+    ACTIONS: {
+        APPLY_WORK: 'APPLY_WORK',
+        APPLY_EMPLOYEE: 'APPLY_EMPLOYEE'
     }
 }

@@ -32,6 +32,7 @@ const workSchema = new Schema({
             acceptedDate: Date,
         }
     ],
+    resolution: String,
     reasonReject: String,
     comentaryReject: String,
     finish: Date

@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt-nodejs')
 const mongoose = require('mongoose')
 const { User } = require('../models')
 const { s3Service, emailService, oneSignalService, jwtService } = require('../services')
-const { STATES } = require('../config/constants')
+const { STATES, ROLES } = require('../config/constants')
 const userCtrl = {}
 
 userCtrl.register = async (req, res) => {
@@ -145,6 +145,54 @@ userCtrl.updateState = async (req, res) => {
         res.status(200).send({ message: 'Success' })
     } catch (e) {
         console.log('updateState - Error:', e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+userCtrl.applyEmployee = async (req, res) => {
+    try {
+        const { userId } = req.user
+        const { files } = req.body
+        const { certificateOfStudies, criminalRecord, otherFile, nameCertificateOfStudies, nameCriminalRecord, nameOtherFile } = files
+        const user = await User.findById(userId)
+        if (user.state = STATES.USER.APPLY_EMPLOYEE) {
+            return res.status(400).send({ message: 'Ya cuenta con una solicitud en curso, debe esperar a resolución' })
+        }
+        let dataToUpdate = { ...user.files }
+        if (certificateOfStudies && certificateOfStudies != '') {
+            dataToUpdate.certificateOfStudies = certificateOfStudies
+            dataToUpdate.nameCertificateOfStudies = nameCertificateOfStudies
+        }
+        if (criminalRecord && criminalRecord != '') {
+            dataToUpdate.criminalRecord = criminalRecord
+            dataToUpdate.nameCriminalRecord = nameCriminalRecord
+        }
+        if (otherFile && otherFile != '') {
+            dataToUpdate.otherFile = otherFile
+            dataToUpdate.nameOtherFile = nameOtherFile
+        }
+        await User.findByIdAndUpdate(userId, { $set: { files: dataToUpdate, state: STATES.USER.APPLY_EMPLOYEE } })
+        res.status(200).send({ message: 'Success' })
+    } catch (e) {
+        console.log('applyEmployee - Error:', e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+userCtrl.updateApplyEmployee = async (req, res) => {
+    try {
+        const { accept, _id, pushId } = req.body
+        let roles = [
+            { role: ROLES.EMPLOYER }
+        ]
+        if (accept) {
+            roles.push({ role: ROLES.EMPLOYEE })
+        }
+        await User.findByIdAndUpdate(_id, { $set: { state: STATES.USER.AVAILABLE }, roles })
+        await oneSignalService.sendPushApplyEmployee(pushId, accept)
+        res.status(200).send({ message: 'Usuario actualizado con éxito' })
+    } catch (e) {
+        console.log('updateApplyEmployee - Error:', e)
         res.status(500).send({ message: 'Error', error: e })
     }
 }

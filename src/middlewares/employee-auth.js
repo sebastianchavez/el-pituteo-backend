@@ -1,4 +1,5 @@
 const { jwtService } = require('../services')
+const { ROLES, STATES } = require('../config/constants')
 
 const isAuth = (req, res, next) => {
     if (!req.headers.authorization) {
@@ -8,8 +9,14 @@ const isAuth = (req, res, next) => {
 
     jwtService.decodeToken(token)
         .then(response => {
-            req.user = response
-            next()
+            const { roles, state } = response
+            const isEmployee = roles.filter(x => x.role == ROLES.EMPLOYEE)
+            if (isEmployee && state == STATES.USER.AVAILABLE) {
+                req.user = response
+                next()
+            } else {
+                res.status(401).send({ message: 'Sin permisos' })
+            }
         })
         .catch(error => {
             res.status(401).send({ message: 'Falló autenticacion de token' })

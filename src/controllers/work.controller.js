@@ -52,7 +52,7 @@ workCtrl.updateImage = async (req, res) => {
 
 workCtrl.filter = async (req, res) => {
     try {
-        const { title, states, category, commune, startDate, endDate } = req.query
+        const { title, states, category, commune, startDate, endDate, page, limit } = req.query
         let criteria = {}
         criteria.$and = []
         if (title && title != '') {
@@ -86,11 +86,17 @@ workCtrl.filter = async (req, res) => {
 
         const populate = [
             { select: 'name', path: 'paymentMethodId' },
-            { select: 'name', path: 'categoryId' },
+            { select: 'name icon image', path: 'categoryId' },
             { select: 'name region', path: 'address.communeId' },
             { select: 'email', path: 'userIdEmployer' }
         ]
-        const works = await Work.find(criteria).populate(populate)
+        let works
+        if (limit && parseFloat(limit) > 0) {
+            works = await Work.find(criteria).skip((parseFloat(page) * parseFloat(limit)) - parseFloat(limit)).populate(populate).sort({ createdAt: -1 }).limit(parseFloat(limit))
+        } else {
+            works = await Work.find(criteria).populate(populate).sort({ createdAt: -1 })
+        }
+
         res.status(200).send({ message: 'Success', works })
     } catch (e) {
         console.log(e)
@@ -100,12 +106,65 @@ workCtrl.filter = async (req, res) => {
 
 workCtrl.updateState = async (req, res) => {
     try {
-        const { _id, accept } = req.body
+        const { _id, accept, resolution } = req.body
         const state = accept ? STATES.WORK.AVAILABLE : STATES.WORK.REJECTED
-        const work = await Work.findByIdAndUpdate(_id, { $set: { state } })
+        const work = await Work.findByIdAndUpdate(_id, { $set: { state, resolution } })
         const user = await User.findById(work.userIdEmployer)
         await oneSignalService.sendPushResolutionWork(user.pushId, state)
         res.status(200).send({ message: 'Success' })
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+workCtrl.applyWork = async (req, res) => {
+    try {
+        const { userId } = req.user
+        const { _id, userIdEmployer } = req.body
+        if (userId == userIdEmployer._id) {
+            res.status(400).send({ message: 'No puede postular a su propia publicación' })
+        } else {
+            const work = await Work.findById(_id)
+            let flag = work.applicants.find(x => x.userId == userId)
+            if (flag) {
+                res.status(400).send({ message: 'Ya postulaste a este pituto' })
+            } else {
+                const applicant = {
+                    userId: mongoose.Types.ObjectId(userId),
+                    applicantedDate: new Date(),
+                }
+                const user = await User.findById(userIdEmployer)
+                await Work.findByIdAndUpdate(_id, { $addToSet: { applicants: applicant } })
+                await oneSignalService.sendPushApplyWork(user.pushId, _id)
+                res.status(200).send({ message: 'Postulación realizada con éxito' })
+            }
+        }
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+workCtrl.getWorkById = async (req, res) => {
+    try {
+        const { id } = req.query
+        const populate = [
+            { select: 'email names files', path: 'applicants.userId' }
+        ]
+        const work = await Work.findById(id).populate(populate)
+        res.status(200).send({ message: 'Success', work })
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+workCtrl.acceptApplicant = async (req, res) => {
+    try {
+        const { _id, workId } = req.body
+        await Work.findByIdAndUpdate(workId, { $set: { state: STATES.WORK.IN_PROGRESS, userIdEmployee: mongoose.Types.ObjectId(_id) } })
+        res.status(200).send({ message: 'Apitutado aceptado con éxito' })
     } catch (e) {
         console.log(e)
         res.status(500).send({ message: 'Error', error: e })

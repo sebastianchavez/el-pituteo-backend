@@ -1,5 +1,5 @@
 var nodemailer = require('nodemailer')
-const { userTemplate } = require('../templates/email')
+const emailTemplate = require('../templates/email')
 const { EMAIL_USER, EMAIL_PASSWORD } = process.env
 
 const emailService = {}
@@ -17,7 +17,7 @@ emailService.changeStateUser = (body) => {
     from: 'contacto@elpituteo.cl',
     to: body.email,
     subject: 'Resolución de registro de usuario',
-    html: userTemplate.changeState(body)
+    html: emailTemplate.changeState(body)
   })
 }
 
