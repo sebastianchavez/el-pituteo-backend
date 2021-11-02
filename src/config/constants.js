@@ -5,7 +5,8 @@ module.exports = {
             REJECTED: 'REJECTED',
             AVAILABLE: 'AVAILABLE',
             IN_PROGRESS: 'IN_PROGRESS',
-            COMPLETED: 'COMPLETED'
+            COMPLETED: 'COMPLETED',
+            CANCELED: 'CANCELED'
         },
         USER: {
             PENDING: 'PENDING',

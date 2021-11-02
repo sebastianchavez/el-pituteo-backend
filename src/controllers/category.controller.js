@@ -87,7 +87,6 @@ categoryCtrl.updateProfessions = async (req, res) => {
             professions.forEach(x => {
                 professionList.push({ professionId: mongoose.Types.ObjectId(x) })
             })
-            console.log(professionList)
             await Category.findByIdAndUpdate(_id, { $set: { professions: professionList } })
             res.status(200).send({ message: 'Profesiones actualizadas' })
         } else {

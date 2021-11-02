@@ -12,6 +12,7 @@ const userSchema = new Schema({
     phone: Number,
     email: String,
     expiredDateCI: Date,
+    newExiredDateCI: Date,
     nacionality: String,
     professionId: { type: Schema.Types.ObjectId, ref: 'Profession' },
     state: String,
@@ -47,7 +48,7 @@ const userSchema = new Schema({
         typeAccount: String,
         numberAccount: Number
     }
-},{
+}, {
     timestamps: true
 })
 

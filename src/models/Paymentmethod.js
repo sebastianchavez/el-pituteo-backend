@@ -6,6 +6,8 @@ const paymentMethodSchema = new Schema({
     name: String,
     description: String,
     isAvailable: Boolean
+}, {
+    timestamps: true
 })
 
 module.exports = mongoose.model('Paymentmethod', paymentMethodSchema)

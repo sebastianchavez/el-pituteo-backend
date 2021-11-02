@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt-nodejs')
 const mongoose = require('mongoose')
-const { User } = require('../models')
+const { User, Work } = require('../models')
 const { s3Service, emailService, oneSignalService, jwtService } = require('../services')
 const { STATES, ROLES } = require('../config/constants')
 const userCtrl = {}
@@ -59,6 +59,7 @@ userCtrl.login = async (req, res) => {
             const passwordIsValid = bcrypt.compareSync(password, user.password)
             if (passwordIsValid) {
                 let userResponse = {
+                    userId: user._id,
                     names: user.names,
                     lastnames: user.lastnames,
                     nacionality: user.nacionality,
@@ -140,8 +141,14 @@ userCtrl.updateState = async (req, res) => {
             dataToUpdate.state = STATES.USER.REJECTED
         }
         const response = await User.findByIdAndUpdate(_id, dataToUpdate)
-        await emailService.changeStateUser({ state: dataToUpdate.state, email: response.email })
-        await oneSignalService.sendPushResolutionRegister(pushId, dataToUpdate.state)
+        emailService.changeStateUser({ state: dataToUpdate.state, email: response.email })
+            .catch(err => {
+                console.log('Error al enviar email', err)
+            })
+        oneSignalService.sendPushResolutionRegister(pushId, dataToUpdate.state)
+            .catch(err => {
+                console.log('Error al enviar notifiación', err)
+            })
         res.status(200).send({ message: 'Success' })
     } catch (e) {
         console.log('updateState - Error:', e)
@@ -181,7 +188,7 @@ userCtrl.applyEmployee = async (req, res) => {
 
 userCtrl.updateApplyEmployee = async (req, res) => {
     try {
-        const { accept, _id, pushId } = req.body
+        const { accept, _id, pushId, email } = req.body
         let roles = [
             { role: ROLES.EMPLOYER }
         ]
@@ -189,10 +196,39 @@ userCtrl.updateApplyEmployee = async (req, res) => {
             roles.push({ role: ROLES.EMPLOYEE })
         }
         await User.findByIdAndUpdate(_id, { $set: { state: STATES.USER.AVAILABLE }, roles })
-        await oneSignalService.sendPushApplyEmployee(pushId, accept)
+        emailService.sendEmailApplyEmployee({ email, accept })
+            .catch(err => {
+                console.log('Error al enviar email', err)
+            })
+        oneSignalService.sendPushApplyEmployee(pushId, accept)
+            .catch(err => {
+                console.log('Error al enviar notifiación', err)
+            })
         res.status(200).send({ message: 'Usuario actualizado con éxito' })
     } catch (e) {
         console.log('updateApplyEmployee - Error:', e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+userCtrl.getMyContacts = async (req, res) => {
+    try {
+        const { userId } = req.user
+        const works = await Work.find({ $or: [{ userIdEmployer: userId }, { userIdEmployee: userId }] })
+        let contacts = []
+        for await (w of works) {
+            contacts.push(w.userIdEmployer == userId ? w.userIdEmployee : w.userIdEmployer)
+        }
+        contacts = [...new Set(contacts)]
+        const criteria = {
+            _id: {
+                $in: contacts
+            }
+        }
+        const users = await User.find(criteria)
+        res.status(200).send({ message: 'Success', users })
+    } catch (e) {
+        console.log('getMyContacts - Error:', e)
         res.status(500).send({ message: 'Error', error: e })
     }
 }

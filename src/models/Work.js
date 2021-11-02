@@ -33,9 +33,10 @@ const workSchema = new Schema({
         }
     ],
     resolution: String,
-    reasonReject: String,
-    comentaryReject: String,
-    finish: Date
+    paymentState: String, // STRIPE
+    isDeposited: Boolean, // STRIPE
+    finishDate: Date,
+    depositDate: Date // STRIPE
 }, {
     timestamps: true
 })

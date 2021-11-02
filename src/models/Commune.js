@@ -5,6 +5,8 @@ const communeSchema = new Schema({
     name: String,
     region: String,
     isAvailable: Boolean
+}, {
+    timestamps: true
 })
 
 module.exports = mongoose.model('Commune', communeSchema)

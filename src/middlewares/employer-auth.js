@@ -10,17 +10,7 @@ const isAuth = (req, res, next) => {
     jwtService.decodeToken(token)
         .then(response => {
             const { roles, state } = response
-            console.log('ROLES:', roles)
-            console.log('STATE:', state)
-            // let isEmployer = false
-            // roles.forEach(x => {
-            //     console.log({ role: x.role })
-            //     if (x.role == ROLES.EMPLOYER) {
-            //         isEmployer = true
-            //     }
-            // })
             const isEmployer = roles.filter(x => x.role == ROLES.EMPLOYER)
-            console.log('isEmployer:', isEmployer)
             if (isEmployer && state == STATES.USER.AVAILABLE) {
                 req.user = response
                 next()

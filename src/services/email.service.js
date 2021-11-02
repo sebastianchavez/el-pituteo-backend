@@ -21,4 +21,13 @@ emailService.changeStateUser = (body) => {
   })
 }
 
+emailService.sendEmailApplyEmployee = (body) => {
+  return transporter.sendMail({
+    from: 'contacto@elpituteo.cl',
+    to: body.email,
+    subject: 'Resolución de solicitud apitutado',
+    html: emailTemplate.applyEmployee(body.accept)
+  })
+}
+
 module.exports = emailService

@@ -150,7 +150,9 @@ workCtrl.getWorkById = async (req, res) => {
     try {
         const { id } = req.query
         const populate = [
-            { select: 'email names files', path: 'applicants.userId' }
+            { select: 'email names files', path: 'applicants.userId' },
+            { select: 'email names files', path: 'userIdEmployee' },
+            { select: 'email names files', path: 'userIdEmployer' },
         ]
         const work = await Work.findById(id).populate(populate)
         res.status(200).send({ message: 'Success', work })
@@ -165,6 +167,45 @@ workCtrl.acceptApplicant = async (req, res) => {
         const { _id, workId } = req.body
         await Work.findByIdAndUpdate(workId, { $set: { state: STATES.WORK.IN_PROGRESS, userIdEmployee: mongoose.Types.ObjectId(_id) } })
         res.status(200).send({ message: 'Apitutado aceptado con éxito' })
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+workCtrl.getMyWorks = async (req, res) => {
+    try {
+        const { userId } = req.user
+        const populate = [
+            { select: 'name', path: 'paymentMethodId' },
+            { select: 'name icon image', path: 'categoryId' },
+            { select: 'name region', path: 'address.communeId' },
+            { select: 'email', path: 'userIdEmployer' }
+        ]
+
+        const works = await Work.find({ $or: [{ userIdEmployer: userId }, { userIdEmployee: userId }] }).sort({ createdAt: -1 }).populate(populate)
+        res.status(200).send({ message: 'Success', works })
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+workCtrl.complete = async (req, res) => {
+    try {
+        const { _id } = req.body
+        res.status(200).send({ message: 'Success' })
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+workCtrl.cancel = async (req, res) => {
+    try {
+        const { _id } = req.body
+        await Work.findByIdAndUpdate(_id, { $set: { state: STATES.WORK.CANCELED } })
+        res.status(200).send({ message: 'Success' })
     } catch (e) {
         console.log(e)
         res.status(500).send({ message: 'Error', error: e })
