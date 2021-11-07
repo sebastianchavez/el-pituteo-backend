@@ -30,4 +30,22 @@ emailService.sendEmailApplyEmployee = (body) => {
   })
 }
 
+emailService.sendEmailPaymentStripe = (body) => {
+  return transporter.sendMail({
+    from: 'contacto@elpituteo.cl',
+    to: body.email,
+    subject: 'Pituto completado',
+    html: emailTemplate.paymentStripe()
+  })
+}
+
+emailService.sendEmailPaymentMoney = (body) => {
+  return transporter.sendMail({
+    from: 'contacto@elpituteo.cl',
+    to: body.email,
+    subject: 'Pituto completado',
+    html: emailTemplate.paymentMoney()
+  })
+}
+
 module.exports = emailService

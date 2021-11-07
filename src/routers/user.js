@@ -11,5 +11,6 @@ router.put('/login', userCtrl.login)
 router.put('/apply-employee', userAuth, userCtrl.applyEmployee)
 router.put('/update-apply', adminAuth, userCtrl.updateApplyEmployee)
 router.get('/get-my-contacts', userAuth, userCtrl.getMyContacts)
+router.get('/get-rating', userAuth, userCtrl.getRating)
 
 module.exports = router

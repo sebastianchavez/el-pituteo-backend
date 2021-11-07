@@ -5,6 +5,7 @@ const paymentMethodCtrl = {}
 paymentMethodCtrl.filter = async (req, res) => {
     try {
         const { name, code, isAvailable } = req.query
+        console.log(req.query)
         const criteria = {}
         criteria.$and = []
         if (name && name != '') {
@@ -17,7 +18,7 @@ paymentMethodCtrl.filter = async (req, res) => {
             let option = { $regex: regex }
             criteria.$and.push({ code: option })
         }
-        if (isAvailable && isAvailable != 'null') {
+        if (isAvailable && isAvailable != 'null' && isAvailable != 'undefined') {
             criteria.isAvailable = isAvailable
         }
         if (criteria.$and.length == 0) {

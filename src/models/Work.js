@@ -36,7 +36,8 @@ const workSchema = new Schema({
     paymentState: String, // STRIPE
     isDeposited: Boolean, // STRIPE
     finishDate: Date,
-    depositDate: Date // STRIPE
+    depositDate: Date, // STRIPE
+    stripeId: String // STRIPE
 }, {
     timestamps: true
 })

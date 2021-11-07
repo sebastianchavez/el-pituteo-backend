@@ -233,4 +233,20 @@ userCtrl.getMyContacts = async (req, res) => {
     }
 }
 
+userCtrl.getRating = async (req, res) => {
+    try {
+        const { userId } = req.query
+        const populate = [
+            { select: 'name', path: 'professionId' },
+            { select: 'name', path: 'communeId' }
+        ]
+        const user = await User.findById(userId).populate(populate)
+        const works = await Work.find({ userIdEmployee: userId }, { ratingEmployee: 1 })
+        res.status(200).send({ message: 'Success', user, works })
+    } catch (e) {
+        console.log('getRating - Error:', e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
 module.exports = userCtrl

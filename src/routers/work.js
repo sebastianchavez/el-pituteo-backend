@@ -13,5 +13,8 @@ router.put('/accept-applicant', userAuth, workCtrl.acceptApplicant)
 router.get('/get-my-works', userAuth, workCtrl.getMyWorks)
 router.put('/cancel', employerAuth, workCtrl.cancel)
 router.put('/complete', employerAuth, workCtrl.complete)
+router.put('/rating', userAuth, workCtrl.rating)
+router.put('/confirm-payment-stripe', employerAuth, workCtrl.confirmPymentStripe)
+router.put('/confirm-deposite', adminAuth, workCtrl.confirmDeposite)
 
 module.exports = router

@@ -29,5 +29,19 @@ pushTemplate.applyEmployee = (accept) => {
     }
 }
 
+pushTemplate.paymentStripe = () => {
+    return {
+        title: 'Pituto pagado',
+        message: `El pituto ha sido pagado con tarjeta de crédito, tu deposito será coordinado con administración`
+    }
+}
+
+pushTemplate.paymentMoney = () => {
+    return {
+        title: 'Pituto pagado',
+        message: 'El pituto ha sido pagado con efectivo'
+    }
+}
+
 
 module.exports = pushTemplate

@@ -11,7 +11,7 @@ stripeService.generatePaymentIntent = async ({ amount, user, payment_method }) =
                 currency: STRIPE_CURRENCY,
                 payment_method_types: ['card'],
                 payment_method,
-                description: `Pago de prueba para CIISA`
+                description: `Pago realizado por usuario:"${user.email}", RUT: ${user.rut} `
             });
             resolve(resPaymentIntent)
         } catch (e) {
@@ -21,23 +21,6 @@ stripeService.generatePaymentIntent = async ({ amount, user, payment_method }) =
 
 }
 
-stripeService.generatePaymentIntent = async ({ amount, user, payment_method }) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const resPaymentIntent = await stripe.paymentIntents.create({
-                amount: parseFloat(amount), // * 100 DLL
-                currency: STRIPE_CURRENCY,
-                payment_method_types: ['card'],
-                payment_method,
-                description: `Pago de prueba para CIISA`
-            });
-            resolve(resPaymentIntent)
-        } catch (e) {
-            reject(e)
-        }
-    })
-
-}
 
 stripeService.generatePaymentMethod = async (token) => {
     return new Promise(async (resolve, reject) => {
@@ -59,6 +42,20 @@ stripeService.getPaymentDetail = async (id) => {
         try {
             const detailOrder = await stripe.paymentIntents.retrieve(id)
             resolve(detailOrder)
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+stripeService.confirmPaymentIntent = async (id, token) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const paymentIntent = await stripe.paymentIntents.confirm(
+                id,
+                { payment_method: token }
+            );
+            resolve(paymentIntent)
         } catch (e) {
             reject(e)
         }
