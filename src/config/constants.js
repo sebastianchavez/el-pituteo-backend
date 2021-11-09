@@ -29,5 +29,8 @@ module.exports = {
         APPLY_WORK: 'APPLY_WORK',
         APPLY_EMPLOYEE: 'APPLY_EMPLOYEE',
         PAYMENT: 'PAYMENT'
+    },
+    APP: {
+        VERSION: '1.0',
     }
 }

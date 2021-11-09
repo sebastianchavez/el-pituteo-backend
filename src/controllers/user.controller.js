@@ -2,7 +2,8 @@ const bcrypt = require('bcrypt-nodejs')
 const mongoose = require('mongoose')
 const { User, Work } = require('../models')
 const { s3Service, emailService, oneSignalService, jwtService } = require('../services')
-const { STATES, ROLES } = require('../config/constants')
+const { STATES, ROLES, APP } = require('../config/constants')
+const FAQS = require('../config/faqs')
 const userCtrl = {}
 
 userCtrl.register = async (req, res) => {
@@ -58,25 +59,7 @@ userCtrl.login = async (req, res) => {
             const token = jwtService.createTokenUser(user)
             const passwordIsValid = bcrypt.compareSync(password, user.password)
             if (passwordIsValid) {
-                let userResponse = {
-                    userId: user._id,
-                    names: user.names,
-                    lastnames: user.lastnames,
-                    nacionality: user.nacionality,
-                    idS3: user.idS3,
-                    pushId: user.pushId,
-                    phone: user.phone,
-                    state: user.state,
-                    professionId: user.professionId,
-                    roles: user.roles,
-                    rut: user.rut,
-                    email: user.email,
-                    rating: user.rating,
-                    address: user.address,
-                    communeId: user.communeId,
-                    files: user.files
-                }
-                return res.status(200).send({ message: 'Usuario autenticado', token, user: userResponse })
+                return res.status(200).send({ message: 'Usuario autenticado', token, user: formatResponseUser(user) })
             }
         }
         return res.status(400).send({ message: 'Email o contraseña son incorrectas' })
@@ -246,6 +229,63 @@ userCtrl.getRating = async (req, res) => {
     } catch (e) {
         console.log('getRating - Error:', e)
         res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+userCtrl.updateUser = async (req, res) => {
+    try {
+        const { userId } = req.user
+        const { names, lastnames, email, phone, ciExpired, commune, address, files } = req.body
+        const user = await User.findByIdAndUpdate(userId, { $set: { names, lastnames, email, phone, communeId: mongoose.Types.ObjectId(commune), address, files, newExiredDateCI: ciExpired } })
+        res.status(200).send({ message: 'Success', user: formatResponseUser(user) })
+    } catch (e) {
+        console.log('updateUser - Error:', e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+userCtrl.changePassword = async (req, res) => {
+    try {
+        const { userId } = req.user
+        const { password } = req.body
+        await User.findByIdAndUpdate(userId, { $set: { password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)) } })
+        res.status(200).send({ message: 'Success' })
+    } catch (e) {
+        console.log('changePassword - Error:', e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+userCtrl.getFaqs = async (req, res) => {
+    try {
+        const faqs = FAQS
+        const version = APP.VERSION
+        res.status(200).send({ message: 'Success', faqs, version })
+    } catch (e) {
+        console.log('getFaqs - Error:', e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+const formatResponseUser = (user) => {
+    return {
+        userId: user._id,
+        names: user.names,
+        lastnames: user.lastnames,
+        nacionality: user.nacionality,
+        idS3: user.idS3,
+        pushId: user.pushId,
+        phone: user.phone,
+        state: user.state,
+        professionId: user.professionId,
+        roles: user.roles,
+        rut: user.rut,
+        email: user.email,
+        rating: user.rating,
+        address: user.address,
+        communeId: user.communeId,
+        files: user.files,
+        expiredDateCI: user.expiredDateCI,
     }
 }
 
