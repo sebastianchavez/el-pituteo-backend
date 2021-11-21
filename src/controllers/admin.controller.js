@@ -23,7 +23,7 @@ adminCtrl.login = async (req, res) => {
         const { email, password } = req.body
         const admin = await Admin.findOne({ email })
         if (admin) {
-            const token = jwtService.createToken(admin)
+            const token = jwtService.createToken({ ...admin._doc, isAdmin: true })
             const passwordIsValid = bcrypt.compareSync(password, admin.password)
             if (passwordIsValid) {
                 return res.status(200).send({ message: 'Admin autenticado', token })

@@ -5,7 +5,6 @@ const paymentMethodCtrl = {}
 paymentMethodCtrl.filter = async (req, res) => {
     try {
         const { name, code, isAvailable } = req.query
-        console.log(req.query)
         const criteria = {}
         criteria.$and = []
         if (name && name != '') {
@@ -61,6 +60,17 @@ paymentMethodCtrl.getPaymentMethods = async (req, res) => {
     try {
         const paymentMethods = await Paymentmethod.find({ isAvailable: true })
         res.status(200).send({ message: 'Success', paymentMethods })
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+paymentMethodCtrl.updatePaymentMethod = async (req, res) => {
+    try {
+        const { _id, name, description, code } = req.body
+        await Paymentmethod.findByIdAndUpdate(_id, { $set: { name, description, code } })
+        res.status(200).send({ message: 'Success' })
     } catch (e) {
         console.log(e)
         res.status(500).send({ message: 'Error', error: e })

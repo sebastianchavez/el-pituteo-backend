@@ -7,7 +7,8 @@ jwtService.createToken = (user) => {
   const payload = {
     sub: {
       userId: user._id,
-      email: user.email
+      email: user.email,
+      isAdmin: user.isAdmin ? true : false
     },
     iat: moment().unix(),
     exp: moment().add(1, 'day').unix()

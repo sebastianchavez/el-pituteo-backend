@@ -3,10 +3,10 @@ const Schema = mongoose.Schema
 
 const notificationSchema = new Schema({
     title: String,
-    message: Boolean,
+    message: String,
     types: [
         {
-            type: String
+            type: { type: String }
         }
     ],
     users: [

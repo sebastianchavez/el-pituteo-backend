@@ -42,7 +42,7 @@ communeCtrl.filterCommunes = async (req, res) => {
             let option = { $regex: regex }
             criteria.$and.push({ region: option })
         }
-        if (isAvailable && isAvailable != 'null') {
+        if (isAvailable && isAvailable != '' && isAvailable != 'undefined' && isAvailable != 'null') {
             criteria.isAvailable = isAvailable
         }
         if (criteria.$and.length == 0) {
@@ -56,11 +56,26 @@ communeCtrl.filterCommunes = async (req, res) => {
     }
 }
 
-communeCtrl.update = async (req, res) => {
+communeCtrl.updateState = async (req, res) => {
     try {
         const { _id, isAvailable } = req.body
         const dataToUpdate = {
             isAvailable
+        }
+        await Commune.findByIdAndUpdate(_id, { $set: dataToUpdate })
+        res.status(200).send({ message: 'Comuna actualizada' })
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+communeCtrl.updateCommune = async (req, res) => {
+    try {
+        const { _id, name, region } = req.body
+        const dataToUpdate = {
+            name,
+            region
         }
         await Commune.findByIdAndUpdate(_id, { $set: dataToUpdate })
         res.status(200).send({ message: 'Comuna actualizada' })

@@ -15,6 +15,8 @@ const workSchema = new Schema({
     address: {
         address: String,
         communeId: { type: Schema.Types.ObjectId, ref: 'Commune' },
+        latitude: Number,
+        longitude: Number,
     },
     ratingEmployee: {
         rating: Number,

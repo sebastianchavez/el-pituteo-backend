@@ -12,8 +12,10 @@ router.put('/apply-employee', userAuth, userCtrl.applyEmployee)
 router.put('/update-apply', adminAuth, userCtrl.updateApplyEmployee)
 router.get('/get-my-contacts', userAuth, userCtrl.getMyContacts)
 router.get('/get-rating', userAuth, userCtrl.getRating)
-router.put('/update-user', userAuth, userCtrl.updateUser)
+router.put('/update-my-user', userAuth, userCtrl.updateMyUser)
+router.put('/change-my-password', userAuth, userCtrl.changeMyPassword)
 router.put('/change-password', userAuth, userCtrl.changePassword)
 router.get('/get-faqs', userCtrl.getFaqs)
+router.put('/update-user', adminAuth, userCtrl.updateUser)
 
 module.exports = router

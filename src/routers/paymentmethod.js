@@ -7,5 +7,6 @@ router.get('/get-payment-methods', paymentMethodCtrl.getPaymentMethods)
 router.get('/filter-payment-methods', adminAuth, paymentMethodCtrl.filter)
 router.post('/save', adminAuth, paymentMethodCtrl.save)
 router.put('/update-state', adminAuth, paymentMethodCtrl.updateState)
+router.put('/update', adminAuth, paymentMethodCtrl.updatePaymentMethod)
 
 module.exports = router

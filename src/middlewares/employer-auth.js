@@ -1,5 +1,6 @@
 const { jwtService } = require('../services')
 const { ROLES, STATES } = require('../config/constants')
+const { User } = require('../models')
 
 const isAuth = (req, res, next) => {
     if (!req.headers.authorization) {
@@ -8,14 +9,13 @@ const isAuth = (req, res, next) => {
     const token = req.headers.authorization.split(' ')[1]
 
     jwtService.decodeToken(token)
-        .then(response => {
-            const { roles, state } = response
-            const isEmployer = roles.filter(x => x.role == ROLES.EMPLOYER)
-            if (isEmployer && state == STATES.USER.AVAILABLE) {
+        .then(async (response) => {
+            const user = await User.findById(response.userId, { state: 1 })
+            if (user && (user.state == STATES.USER.AVAILABLE || user.state == STATES.USER.APPLY_EMPLOYEE)) {
                 req.user = response
                 next()
             } else {
-                res.status(401).send({ message: 'Sin permisos' })
+                res.status(401).send({ message: 'No tiene permisos' })
             }
         })
         .catch(error => {

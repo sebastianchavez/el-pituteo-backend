@@ -4,6 +4,7 @@ module.exports = {
             PENDING: 'PENDING',
             REJECTED: 'REJECTED',
             AVAILABLE: 'AVAILABLE',
+            INAVAILABLE: 'INAVAILABLE',
             IN_PROGRESS: 'IN_PROGRESS',
             COMPLETED: 'COMPLETED',
             CANCELED: 'CANCELED'
@@ -12,6 +13,7 @@ module.exports = {
             PENDING: 'PENDING',
             REJECTED: 'REJECTED',
             AVAILABLE: 'AVAILABLE',
+            INAVAILABLE: 'INAVAILABLE',
             APPLY_EMPLOYEE: 'APPLY_EMPLOYEE'
         },
         PAYMENT: {
@@ -29,6 +31,12 @@ module.exports = {
         APPLY_WORK: 'APPLY_WORK',
         APPLY_EMPLOYEE: 'APPLY_EMPLOYEE',
         PAYMENT: 'PAYMENT'
+    },
+    TYPES: {
+        NOTIFICATION: {
+            EMAIL: 'EMAIL',
+            PUSH: 'PUSH'
+        }
     },
     APP: {
         VERSION: '1.0',

@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt-nodejs')
+const uuid = require('uuid').v1()
 const mongoose = require('mongoose')
 const { User, Work } = require('../models')
 const { s3Service, emailService, oneSignalService, jwtService } = require('../services')
@@ -56,6 +57,10 @@ userCtrl.login = async (req, res) => {
                 return res.status(400).send({ message: 'Su registro ha sido rechazado' })
             }
 
+            if (user.state == STATES.USER.INAVAILABLE) {
+                return res.status(400).send({ message: 'Su usuario se encuentra deshabilitado' })
+            }
+
             const token = jwtService.createTokenUser(user)
             const passwordIsValid = bcrypt.compareSync(password, user.password)
             if (passwordIsValid) {
@@ -106,8 +111,19 @@ userCtrl.filterUser = async (req, res) => {
         if (states && states != '') {
             criteria.state = { $in: states.split(',') }
         }
-        const users = await User.find(criteria)
-        res.status(200).send({ message: 'Success', users })
+        const populate = [
+            { select: 'name', path: 'professionId' }
+        ]
+        let users = await User.find(criteria).populate(populate)
+        let index = 0
+        const userList = []
+        for await (let u of users) {
+            let totalWorks = await Work.find({ userIdEmployer: u._id }).count()
+            let completedWorks = await Work.find({ userIdEmployee: u._id, state: STATES.WORK.COMPLETED }).count()
+            userList.push({ ...users[index]._doc, totalWorks, completedWorks })
+            index++
+        }
+        res.status(200).send({ message: 'Success', users: userList })
     } catch (e) {
         console.log('filterUser - Error:', e)
         res.status(500).send({ message: 'Error', error: e })
@@ -116,19 +132,16 @@ userCtrl.filterUser = async (req, res) => {
 
 userCtrl.updateState = async (req, res) => {
     try {
-        const { _id, accepted, pushId } = req.body
-        const dataToUpdate = {}
-        if (accepted && accepted != 'null') {
-            dataToUpdate.state = STATES.USER.AVAILABLE
-        } else {
-            dataToUpdate.state = STATES.USER.REJECTED
+        const { _id, state, pushId } = req.body
+        const dataToUpdate = {
+            state
         }
         const response = await User.findByIdAndUpdate(_id, dataToUpdate)
-        emailService.changeStateUser({ state: dataToUpdate.state, email: response.email })
+        emailService.changeStateUser({ state: state, email: response.email })
             .catch(err => {
                 console.log('Error al enviar email', err)
             })
-        oneSignalService.sendPushResolutionRegister(pushId, dataToUpdate.state)
+        oneSignalService.sendPushResolutionRegister(pushId, state)
             .catch(err => {
                 console.log('Error al enviar notifiación', err)
             })
@@ -145,7 +158,7 @@ userCtrl.applyEmployee = async (req, res) => {
         const { files } = req.body
         const { certificateOfStudies, criminalRecord, otherFile, nameCertificateOfStudies, nameCriminalRecord, nameOtherFile } = files
         const user = await User.findById(userId)
-        if (user.state = STATES.USER.APPLY_EMPLOYEE) {
+        if (user.state == STATES.USER.APPLY_EMPLOYEE) {
             return res.status(400).send({ message: 'Ya cuenta con una solicitud en curso, debe esperar a resolución' })
         }
         let dataToUpdate = { ...user.files }
@@ -232,7 +245,7 @@ userCtrl.getRating = async (req, res) => {
     }
 }
 
-userCtrl.updateUser = async (req, res) => {
+userCtrl.updateMyUser = async (req, res) => {
     try {
         const { userId } = req.user
         const { names, lastnames, email, phone, ciExpired, commune, address, files } = req.body
@@ -244,11 +257,31 @@ userCtrl.updateUser = async (req, res) => {
     }
 }
 
-userCtrl.changePassword = async (req, res) => {
+userCtrl.changeMyPassword = async (req, res) => {
     try {
         const { userId } = req.user
         const { password } = req.body
         await User.findByIdAndUpdate(userId, { $set: { password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)) } })
+        res.status(200).send({ message: 'Success' })
+    } catch (e) {
+        console.log('changePassword - Error:', e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+userCtrl.changePassword = async (req, res) => {
+    try {
+        const { _id, email, pushId } = req.body
+        const password = uuid.substr(0, 8)
+        await User.findByIdAndUpdate(_id, { $set: { password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)) } })
+        emailService.sendEmailChangePassword({ email, password })
+            .catch(error => {
+                console.log('Error - emailService:', error)
+            })
+        oneSignalService.sendNotificationChangePassword(pushId)
+            .catch(error => {
+                console.log('Error - oneSignalService:', error)
+            })
         res.status(200).send({ message: 'Success' })
     } catch (e) {
         console.log('changePassword - Error:', e)
@@ -263,6 +296,22 @@ userCtrl.getFaqs = async (req, res) => {
         res.status(200).send({ message: 'Success', faqs, version })
     } catch (e) {
         console.log('getFaqs - Error:', e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+userCtrl.updateUser = async (req, res) => {
+    try {
+        const { _id, names, lastnames, roles } = req.body
+        const formatRoles = []
+        roles.forEach(r => {
+            formatRoles.push({ role: r })
+        })
+        console.log({ body: req.body, formatRoles })
+        await User.findByIdAndUpdate(_id, { $set: { names, lastnames, roles: formatRoles } })
+        res.status(200).send({ message: 'Success' })
+    } catch (e) {
+        console.log('updateUser - Error:', e)
         res.status(500).send({ message: 'Error', error: e })
     }
 }

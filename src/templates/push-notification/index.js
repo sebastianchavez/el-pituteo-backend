@@ -3,8 +3,8 @@ const pushTemplate = {}
 
 pushTemplate.changeStateUser = (body) => {
     return {
-        title: 'Resolución de registro de usuario',
-        message: `El registro de su cuenta ha sido ${body.state == STATES.USER.AVAILABLE ? 'aceptado' : 'rechazado'}`
+        title: `Actualización de usuario`,
+        message: `Su usuario ha sido ${body.state == STATES.USER.AVAILABLE ? 'habilitado' : body.state == STATES.USER.REJECTED ? 'rechazado' : 'deshabilitado'}`
     }
 }
 
@@ -40,6 +40,20 @@ pushTemplate.paymentMoney = () => {
     return {
         title: 'Pituto pagado',
         message: 'El pituto ha sido pagado con efectivo'
+    }
+}
+
+pushTemplate.changePassword = () => {
+    return {
+        title: 'Cambio de contraseña',
+        message: 'Se ha cambiado la contraseña de tu usuario'
+    }
+}
+
+pushTemplate.notification = (body) => {
+    return {
+        title: body.title,
+        message: body.text
     }
 }
 

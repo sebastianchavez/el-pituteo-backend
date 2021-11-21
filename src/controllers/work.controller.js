@@ -9,7 +9,7 @@ const workCtrl = {}
 
 workCtrl.publish = async (req, res) => {
     try {
-        const { title, description, amount, paymentmethod, image, imageName, commune, direction, category } = req.body
+        const { title, description, amount, paymentmethod, image, imageName, commune, direction, category, latitude, longitude } = req.body
         const { userId } = req.user
         const dataToSave = {
             title,
@@ -22,6 +22,8 @@ workCtrl.publish = async (req, res) => {
             address: {
                 address: direction,
                 communeId: mongoose.Types.ObjectId(commune),
+                latitude,
+                longitude
             },
             userIdEmployer: mongoose.Types.ObjectId(userId),
             state: STATES.WORK.PENDING
@@ -111,7 +113,6 @@ workCtrl.filter = async (req, res) => {
             { select: 'email', path: 'userIdEmployer' }
         ]
         let works
-        console.log('criteria:', criteria)
         if (limit && parseFloat(limit) > 0) {
             works = await Work.find(criteria).skip((parseFloat(page) * parseFloat(limit)) - parseFloat(limit)).populate(populate).sort({ createdAt: -1 }).limit(parseFloat(limit))
         } else {
@@ -127,14 +128,20 @@ workCtrl.filter = async (req, res) => {
 
 workCtrl.updateState = async (req, res) => {
     try {
-        const { _id, accept, resolution } = req.body
-        const state = accept ? STATES.WORK.AVAILABLE : STATES.WORK.REJECTED
+        const { _id, state, resolution } = req.body
         const work = await Work.findByIdAndUpdate(_id, { $set: { state, resolution } })
         const user = await User.findById(work.userIdEmployer)
-        await oneSignalService.sendPushResolutionWork(user.pushId, state)
+        oneSignalService.sendPushResolutionWork(user.pushId, state)
+            .catch(error => {
+                console.log('Error - oneSignal:', error)
+            })
+        emailService.sendEmailResolutionWork({ email: user.email, state })
+            .catch(error => {
+                console.log('Error - email service:', error)
+            })
         res.status(200).send({ message: 'Success' })
     } catch (e) {
-        console.log(e)
+        console.log('Error - updateState:', e)
         res.status(500).send({ message: 'Error', error: e })
     }
 }
@@ -216,7 +223,6 @@ workCtrl.getMyWorks = async (req, res) => {
 workCtrl.complete = async (req, res) => {
     try {
         const { _id, paymentMethodId, userIdEmployee } = req.body
-        console.log({ paymentMethodId, userIdEmployee })
         await Work.findByIdAndUpdate(_id, { $set: { state: STATES.WORK.COMPLETED, finishDate: new Date() } })
         if (paymentMethodId.code == 'STRIPE') {
             oneSignalService.sendPushPaymentStripe(userIdEmployee.pushId)
