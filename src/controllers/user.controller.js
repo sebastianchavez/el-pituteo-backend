@@ -67,7 +67,7 @@ userCtrl.login = async (req, res) => {
                 return res.status(200).send({ message: 'Usuario autenticado', token, user: formatResponseUser(user) })
             }
         }
-        return res.status(400).send({ message: 'Email o contraseña son incorrectas' })
+        return res.status(400).send({ message: 'Rut o contraseña son incorrectas' })
     } catch (e) {
         console.log('login - Error:', e)
         res.status(500).send({ message: 'Error' })
