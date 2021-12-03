@@ -17,5 +17,6 @@ router.put('/change-my-password', userAuth, userCtrl.changeMyPassword)
 router.put('/change-password', userAuth, userCtrl.changePassword)
 router.get('/get-faqs', userCtrl.getFaqs)
 router.put('/update-user', adminAuth, userCtrl.updateUser)
+router.put('/recovery-password', userCtrl.recoveryPassword)
 
 module.exports = router

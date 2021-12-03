@@ -10,18 +10,25 @@ const isAuth = (req, res, next) => {
 
     jwtService.decodeToken(token)
         .then(async (response) => {
-            const user = await User.findById(response.userId, { state: 1 })
+            const user = await User.findById(response.userId, { state: 1, roles: 1 })
+            console.log('user:', user)
             if (user && user.state == STATES.USER.AVAILABLE) {
-                const { roles } = response
-                const isEmployee = roles.filter(x => x.role == ROLES.EMPLOYEE)
+                const isEmployee = user.roles.find(x => x.role == ROLES.EMPLOYEE)
+                console.log('isEmployee:', isEmployee)
                 if (isEmployee) {
                     req.user = response
                     next()
                 } else {
-                    res.status(401).send({ message: 'No tiene permisos' })
+                    res.status(403).send({ message: 'No tiene permisos', data: true })
                 }
+            } else if (user && user.state == STATES.USER.APPLY_EMPLOYEE) {
+                res.status(403).send({ message: 'Ya tiene una postulación en curso', data: false })
             } else {
-                res.status(401).send({ message: 'No tiene permisos' })
+                if (!user) {
+                    res.status(401).send({ message: 'No tiene permisos' })
+                } else {
+                    res.status(403).send({ message: 'No tiene permisos' })
+                }
             }
         })
         .catch(error => {

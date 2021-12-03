@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt-nodejs')
-const uuid = require('uuid').v1()
 const mongoose = require('mongoose')
 const { User, Work } = require('../models')
 const { s3Service, emailService, oneSignalService, jwtService } = require('../services')
@@ -249,7 +248,8 @@ userCtrl.updateMyUser = async (req, res) => {
     try {
         const { userId } = req.user
         const { names, lastnames, email, phone, ciExpired, commune, address, files } = req.body
-        const user = await User.findByIdAndUpdate(userId, { $set: { names, lastnames, email, phone, communeId: mongoose.Types.ObjectId(commune), address, files, newExiredDateCI: ciExpired } })
+        await User.findByIdAndUpdate(userId, { $set: { names, lastnames, email, phone, communeId: mongoose.Types.ObjectId(commune), address, files, newExiredDateCI: ciExpired } })
+        const user = await User.findById(userId)
         res.status(200).send({ message: 'Success', user: formatResponseUser(user) })
     } catch (e) {
         console.log('updateUser - Error:', e)
@@ -272,7 +272,7 @@ userCtrl.changeMyPassword = async (req, res) => {
 userCtrl.changePassword = async (req, res) => {
     try {
         const { _id, email, pushId } = req.body
-        const password = uuid.substr(0, 8)
+        const password = generatePassword()
         await User.findByIdAndUpdate(_id, { $set: { password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)) } })
         emailService.sendEmailChangePassword({ email, password })
             .catch(error => {
@@ -316,6 +316,29 @@ userCtrl.updateUser = async (req, res) => {
     }
 }
 
+userCtrl.recoveryPassword = async (req, res) => {
+    try {
+        const { rut } = req.body
+        let password = generatePassword()
+        const user = await User.findOne({ rut })
+        if (user) {
+            const email = user.email
+            await User.findOneAndUpdate({ rut }, { $set: { password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)) } })
+            emailService.sendEmailChangePassword({ email, password })
+                .catch(error => {
+                    console.log('Error - emailService:', error)
+                })
+            res.status(200).send({ message: 'Success' })
+        } else {
+            res.status(404).send()
+        }
+    } catch (e) {
+        console.log('recoveryPassword - Error:', e)
+        res.status(500).send({ message: 'Error', error: e })
+    }
+}
+
+
 const formatResponseUser = (user) => {
     return {
         userId: user._id,
@@ -337,5 +360,24 @@ const formatResponseUser = (user) => {
         expiredDateCI: user.expiredDateCI,
     }
 }
+
+const generatePassword = () => {
+    const upperCases = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    const lowerCases = 'abcdefghijklmnopqrstuvwxyz'
+    const numbers = '0123456789'
+    const params = upperCases + lowerCases + numbers
+    let password = ''
+    for (let i = 0; i < 8; i++) {
+        let random = choose(params)
+        password += random
+    }
+    return password
+}
+
+const choose = (choices) => {
+    var index = Math.floor(Math.random() * choices.length);
+    return choices[index];
+}
+
 
 module.exports = userCtrl
