@@ -1,10 +1,19 @@
-require('dotenv').config()
-const app = require('./app')
-require('./config/db')
+//archivo index.js
+var express = require('express');
+var fs = require('fs');
+var https = require('https');
+var app = express(); const
 
-const main = async () => {
-  await app.listen(app.get('port'))
-  console.log(`Server on port ${app.get('port')}`)
-}
+PUERTO = 443;
 
-main()
+https.createServer({
+   cert: fs.readFileSync('cert.pem'),
+   key: fs.readFileSync('key.pem')
+ },app).listen(PUERTO, function(){
+	console.log('Servidor https correindo en el puerto 443');
+});
+
+app.get('/', function(req, res){
+         res.send('Hola, estas en la pagina inicial');
+         console.log('Se recibio una petición get a través de https');
+});
