@@ -113,13 +113,13 @@ workCtrl.filter = async (req, res) => {
             { select: 'email', path: 'userIdEmployer' }
         ]
         let works
-        if (limit && parseFloat(limit) > 0) {
+        if (page && limit && parseFloat(page) > 0) {
             works = await Work.find(criteria).skip((parseFloat(page) * parseFloat(limit)) - parseFloat(limit)).populate(populate).sort({ createdAt: -1 }).limit(parseFloat(limit))
         } else {
             works = await Work.find(criteria).populate(populate).sort({ createdAt: -1 })
         }
-
-        res.status(200).send({ message: 'Success', works })
+        const count = await Work.countDocuments()
+        res.status(200).send({ message: 'Success', works, count })
     } catch (e) {
         console.log(e)
         res.status(500).send({ message: 'Error', error: e })

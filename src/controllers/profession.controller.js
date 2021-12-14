@@ -27,7 +27,7 @@ professionCtrl.getProfessions = async (req, res) => {
 
 professionCtrl.filterProfessions = async (req, res) => {
     try {
-        const { name, isAvailable } = req.query
+        const { name, isAvailable, page, limit } = req.query
         const criteria = {
             $and: []
         }
@@ -42,8 +42,14 @@ professionCtrl.filterProfessions = async (req, res) => {
         if (criteria.$and.length == 0) {
             delete criteria.$and
         }
-        const professions = await Profession.find(criteria)
-        res.status(200).send({ professions })
+        let professions
+        if (page && limit) {
+            professions = await Profession.find(criteria).skip((parseFloat(page) * parseFloat(limit)) - parseFloat(limit)).limit(parseFloat(limit))
+        } else {
+            professions = await Profession.find(criteria)
+        }
+        const count = await Profession.countDocuments()
+        res.status(200).send({ professions, count })
     } catch (e) {
         console.log(e)
         res.status(500).send({ message: 'Error', error: e })

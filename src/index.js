@@ -13,7 +13,7 @@ const main = async () => {
         cert: fs.readFileSync(HTTPS_CERT),
         key: fs.readFileSync(HTTPS_KEY)
       }, app).listen(PORT, function () {
-        console.log(`Server on port ${PORT}`)
+        console.log(`Server on port ${PORT} - HTTPS`)
       });
     } else {
       await app.listen(app.get('port'))

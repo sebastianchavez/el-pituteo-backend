@@ -5,7 +5,7 @@ const categoryCtrl = {}
 
 categoryCtrl.filter = async (req, res) => {
     try {
-        const { name, isAvailable } = req.query
+        const { name, isAvailable, page, limit } = req.query
         const criteria = {}
         criteria.$and = []
         if (name && name != '') {
@@ -19,8 +19,14 @@ categoryCtrl.filter = async (req, res) => {
         if (criteria.$and.length == 0) {
             delete criteria.$and
         }
-        const categories = await Category.find(criteria)
-        res.status(200).send({ message: 'Success', categories })
+        let categories
+        if (page && limit) {
+            categories = await Category.find(criteria).skip((parseFloat(page) * parseFloat(limit)) - parseFloat(limit)).limit(parseFloat(limit))
+        } else {
+            categories = await Category.find(criteria)
+        }
+        const count = await Category.countDocuments()
+        res.status(200).send({ message: 'Success', categories, count })
     } catch (e) {
         console.log(e)
         res.status(500).send({ message: 'Error', error: e })

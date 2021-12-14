@@ -7,7 +7,7 @@
     "dev": "nodemon src/index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Sebastian Chavez",
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.610.0",

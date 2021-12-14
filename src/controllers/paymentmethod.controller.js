@@ -4,7 +4,7 @@ const paymentMethodCtrl = {}
 
 paymentMethodCtrl.filter = async (req, res) => {
     try {
-        const { name, code, isAvailable } = req.query
+        const { name, code, isAvailable, page, limit } = req.query
         const criteria = {}
         criteria.$and = []
         if (name && name != '') {
@@ -23,8 +23,14 @@ paymentMethodCtrl.filter = async (req, res) => {
         if (criteria.$and.length == 0) {
             delete criteria.$and
         }
-        const paymentMethods = await PaymentMethod.find(criteria)
-        res.status(200).send({ message: 'Success', paymentMethods })
+        let paymentMethods
+        if (page && limit) {
+            paymentMethods = await PaymentMethod.find(criteria).skip((parseFloat(page) * parseFloat(limit)) - parseFloat(limit)).limit(parseFloat(limit))
+        } else {
+            paymentMethods = await PaymentMethod.find(criteria)
+        }
+        const count = await PaymentMethod.countDocuments()
+        res.status(200).send({ message: 'Success', paymentMethods, count })
     } catch (e) {
         console.log(e)
         res.status(500).send({ message: 'Error', error: e })

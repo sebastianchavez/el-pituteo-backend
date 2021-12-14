@@ -4,10 +4,10 @@ const cors = require('cors')
 const morgan = require('morgan')
 const { PORT } = require('./config/server')
 const routers = require('./routers')
-const { debbug } = process.env
+const { AVAILABLE_SSL } = process.env
 
 // settings
-if (debbug) {
+if (!AVAILABLE_SSL) {
     app.set('port', PORT)
 }
 // middlewares

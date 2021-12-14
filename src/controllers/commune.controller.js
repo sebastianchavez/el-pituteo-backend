@@ -29,7 +29,7 @@ communeCtrl.getCommunes = async (req, res) => {
 
 communeCtrl.filterCommunes = async (req, res) => {
     try {
-        const { name, region, isAvailable } = req.query
+        const { name, region, isAvailable, limit, page } = req.query
         const criteria = {}
         criteria.$and = []
         if (name && name != '') {
@@ -48,8 +48,14 @@ communeCtrl.filterCommunes = async (req, res) => {
         if (criteria.$and.length == 0) {
             delete criteria.$and
         }
-        const communes = await Commune.find(criteria)
-        res.status(200).send({ message: 'Success', communes })
+        let communes
+        if (limit && page) {
+            communes = await Commune.find(criteria).skip((parseFloat(page) * parseFloat(limit)) - parseFloat(limit)).limit(parseFloat(limit))
+        } else {
+            communes = await Commune.find(criteria)
+        }
+        const count = await Commune.countDocuments()
+        res.status(200).send({ message: 'Success', communes, count })
     } catch (e) {
         console.log(e)
         res.status(500).send({ message: 'Error', error: e })

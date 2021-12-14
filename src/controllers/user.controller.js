@@ -91,7 +91,7 @@ userCtrl.updateImage = async (req, res) => {
 
 userCtrl.filterUser = async (req, res) => {
     try {
-        const { rut, email, states } = req.query
+        const { rut, email, states, page, limit } = req.query
         const criteria = {}
         criteria.$and = []
         if (rut && rut != '') {
@@ -113,7 +113,12 @@ userCtrl.filterUser = async (req, res) => {
         const populate = [
             { select: 'name', path: 'professionId' }
         ]
-        let users = await User.find(criteria).populate(populate)
+        let users
+        if (page && limit) {
+            users = await User.find(criteria).populate(populate).skip((parseFloat(page) * parseFloat(limit)) - parseFloat(limit)).limit(parseFloat(limit))
+        } else {
+            users = await User.find(criteria).populate(populate)
+        }
         let index = 0
         const userList = []
         for await (let u of users) {
@@ -122,7 +127,8 @@ userCtrl.filterUser = async (req, res) => {
             userList.push({ ...users[index]._doc, totalWorks, completedWorks })
             index++
         }
-        res.status(200).send({ message: 'Success', users: userList })
+        const count = await User.countDocuments()
+        res.status(200).send({ message: 'Success', users: userList, count })
     } catch (e) {
         console.log('filterUser - Error:', e)
         res.status(500).send({ message: 'Error', error: e })
