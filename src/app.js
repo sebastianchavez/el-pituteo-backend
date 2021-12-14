@@ -16,12 +16,12 @@ app.use(cors())
 app.use(morgan('dev'))
 app.use(express.json({ limit: '50mb' })) // TODO: definir limite transferencia
 app.use(expressip().getIpInfoMiddleware);
-
-// routes
 app.use((req, res, next) => {
     console.log('IP:', req.ipInfo)
     next()
 })
+
+// routes
 app.use('/api/admins', routers.adminRouter)
 app.use('/api/categories', routers.categoryRouter)
 app.use('/api/communes', routers.communeRouter)
