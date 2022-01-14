@@ -15,11 +15,11 @@ if (!AVAILABLE_SSL) {
 app.use(cors())
 app.use(morgan('dev'))
 app.use(express.json({ limit: '50mb' })) // TODO: definir limite transferencia
-app.use(expressip().getIpInfoMiddleware);
-app.use((req, res, next) => {
-    console.log('IP:', req.ipInfo)
-    next()
-})
+// app.use(expressip().getIpInfoMiddleware);
+// app.use((req, res, next) => {
+//     console.log('IP:', req.ipInfo)
+//     next()
+// })
 
 // routes
 app.use('/api/admins', routers.adminRouter)

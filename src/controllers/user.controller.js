@@ -326,6 +326,7 @@ userCtrl.recoveryPassword = async (req, res) => {
     try {
         const { rut } = req.body
         let password = generatePassword()
+        console.log('contraseña: ', password)
         const user = await User.findOne({ rut })
         if (user) {
             const email = user.email
