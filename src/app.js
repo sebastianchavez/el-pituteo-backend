@@ -4,13 +4,10 @@ const cors = require('cors')
 const morgan = require('morgan')
 const { PORT } = require('./config/server')
 const routers = require('./routers')
-const { AVAILABLE_SSL } = process.env
-const expressip = require('express-ip');
+// const expressip = require('express-ip');
 
 // settings
-if (!AVAILABLE_SSL) {
-    app.set('port', PORT)
-}
+app.set('port', PORT)
 // middlewares
 app.use(cors())
 app.use(morgan('dev'))
